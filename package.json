@@ -1,6 +1,6 @@
 {
   "name": "adobe-analytics-di",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Adobe Analytics aka SiteCatalyst data insertion API module for Node.js",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,9 @@
   "homepage": "https://github.com/AdobeAtAdobe/adobe-analytics-di",
   "devDependencies": {
     "chai": "^2.2.0",
-    "mocha": "^2.2.4",
+    "mocha": "^2.2.4"
+  },
+  "dependencies": {
     "underscore": "^1.8.3"
   }
 }

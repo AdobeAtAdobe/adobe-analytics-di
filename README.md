@@ -1,5 +1,10 @@
 # adobe-analytics-di
 Adobe Analytics aka SiteCatalyst data insertion module for Node.js<br/>
+
+## Installation
+
+  npm install adobe-analytics-di --save
+
 <br/>
 USE Example<br/>
 Setup<br/>
@@ -26,4 +31,11 @@ if (myDi != null) {
 }
 ```
 
+## Tests
 
+  npm test
+
+
+## Release History
+
+* 1.0.0 Initial release
