@@ -1,0 +1,23 @@
+{
+  "name": "adobe-analytics-di",
+  "version": "1.0.0",
+  "description": "Adobe Analytics aka SiteCatalyst data insertion API module for Node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AdobeAtAdobe/adobe-analytics-di.git"
+  },
+  "keywords": [
+    "analytics",
+    "adobe"
+  ],
+  "author": "David Benge",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AdobeAtAdobe/adobe-analytics-di/issues"
+  },
+  "homepage": "https://github.com/AdobeAtAdobe/adobe-analytics-di"
+}
