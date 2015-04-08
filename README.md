@@ -11,17 +11,11 @@ adobeAnalyticsHelper.setReportingSuiteId("MY-REPORTING-SUITE-ID");<br/>
 Send data to Adobe Analytics<br/>
 ```javascript
 var callData = {
-      visitorID: message.user.uid,
-      pageName: message.collectionPoint.friendlyGroupName,
-      channel: message.collectionPoint.reportingChannel,
-      eVar10: message.collectionPoint.friendlyGroupName,
-      prop10: message.collectionPoint.friendlyGroupName,
-      eVar11: message.event,
-      prop11: message.event,
-      eVar12: message.clientId,
-      prop12: message.clientId,
-      eVar13: message.eventTime,
-      prop13: message.eventTime,
+      visitorID: 'myvisitorId',
+      pageName: 'My Home Page',
+      channel: 'My Channel name',
+      eVar10: 'test evar10 value',
+      prop10: 'test prop10 value',
       events: "event10,event11"
     };
 
