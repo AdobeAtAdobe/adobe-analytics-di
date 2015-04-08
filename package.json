@@ -1,6 +1,6 @@
 {
   "name": "adobe-analytics-di",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Adobe Analytics aka SiteCatalyst data insertion API module for Node.js",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,9 @@
   },
   "keywords": [
     "analytics",
-    "adobe"
+    "adobe",
+    "marketing cloud",
+    "sitecatalyst"
   ],
   "author": "David Benge",
   "license": "ISC",

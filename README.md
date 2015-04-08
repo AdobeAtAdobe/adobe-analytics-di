@@ -43,3 +43,4 @@ if (myDi != null) {
 * 1.0.1 Added missing dependency
 * 1.0.2 Updated the README
 * 1.0.3 Updated the README to remove the html formatting from the code section
+* 1.0.4 Updated the keywords
