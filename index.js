@@ -10,6 +10,7 @@
  * https://marketing.adobe.com/developer/en_US/documentation/data-insertion/r-sample-http-post
  ***********/
 var http = require('http');
+var _ = require('underscore');
 var _adobeAnalyticsHttpAgent = new http.Agent();
 _adobeAnalyticsHttpAgent.maxSockets = 20; //default connection pool - nodes default is 5
 var _eVars = [];

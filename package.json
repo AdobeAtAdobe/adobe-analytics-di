@@ -4,7 +4,7 @@
   "description": "Adobe Analytics aka SiteCatalyst data insertion API module for Node.js",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "make test"
   },
   "repository": {
     "type": "git",
@@ -19,5 +19,10 @@
   "bugs": {
     "url": "https://github.com/AdobeAtAdobe/adobe-analytics-di/issues"
   },
-  "homepage": "https://github.com/AdobeAtAdobe/adobe-analytics-di"
+  "homepage": "https://github.com/AdobeAtAdobe/adobe-analytics-di",
+  "devDependencies": {
+    "chai": "^2.2.0",
+    "mocha": "^2.2.4",
+    "underscore": "^1.8.3"
+  }
 }
