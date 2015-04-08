@@ -40,4 +40,5 @@ if (myDi != null) {
 ## Release History
 
 * 1.0.0 Initial release
-* 1.0.1 Updated the README and added missing dependency
+* 1.0.1 Added missing dependency
+* 1.0.2 Updated the README
