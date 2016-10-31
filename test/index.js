@@ -1,9 +1,18 @@
 var should = require('chai').should();
 var adobeAnalyticsHelper = require('../index')
 
+it('should set tracking servers', function () {
+    var ts = "trackingserver";
+    var tss = "trackingserversecure";
+    adobeAnalyticsHelper.setTrackingServers(ts, tss);
+    adobeAnalyticsHelper.getTrackingServer().should.equal(ts);
+    adobeAnalyticsHelper.getTrackingServerSecure().should.equal(tss);
+
+});
+
 it('should set reporting suite ID', function () {
     adobeAnalyticsHelper.setReportingSuiteId("MY-REPORTING-SUITE-ID");
-    adobeAnalyticsHelper.getReportingSuiteId().should.equal("MY-REPORTING-SUITE-ID")
+    adobeAnalyticsHelper.getReportingSuiteId().should.equal("MY-REPORTING-SUITE-ID");
 });
 
 it('should create a DI xml object to post', function () {
