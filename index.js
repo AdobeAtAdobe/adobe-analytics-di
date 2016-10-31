@@ -346,7 +346,7 @@
             req.end();
         }
     }
-    ;
+
     function _validateValidDiParameters(diData) {
         Object.keys(diData).forEach(function(key) {
             var fetchTest = _parameters[key];
@@ -431,7 +431,7 @@
             return JSON.stringify(data, null, 2);
         };
     }
-    ;
+
     var AdobeAnalyticsHelper = {
         evars: _eVars,
         sprops: _sProps,
@@ -441,6 +441,16 @@
             "DOWNLOAD": "d"
         },
         recordEvent: function() {},
+        setTrackingServers: function(unsecure, secure) {
+            _trackingServerSecure=secure;
+            _trackingServer=unsecure;
+        },
+        getTrackingServer: function() {
+            return _trackingServer;
+        },
+        getTrackingServerSecure: function() {
+            return _trackingServerSecure;
+        },
         setReportingSuiteId: function(reportingSuiteId) {
             _reportingSuiteId = reportingSuiteId;
         },
@@ -450,9 +460,14 @@
         getDataInsertion: function(diData) {
             return new DataInsertion(diData);
         },
-        sendCallToAdobeAnalytics: function(di) {
+        /**
+         *
+         * @param di
+         * @param secure bool true= secure server.
+         */
+        sendCallToAdobeAnalytics: function(di, secure) {
             if (di instanceof DataInsertion) {
-                _sendCallToAdobeAnalytics(di);
+                _sendCallToAdobeAnalytics(di, secure);
             } else {
                 throw new Error('di parameter passed is not an instance of DataInsertion. Please use getDataInsertion to get a new object instance to pass.');
             }
