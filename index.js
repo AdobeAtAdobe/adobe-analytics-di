@@ -8,8 +8,8 @@
     var _eVars = [];
     var _persistEvars = true;
     var _sProps = [];
-    var _trackingServer="";
-    var _trackingServerSecure="";
+    var _trackingServer=""; // here
+    var _trackingServerSecure=""; // here
     var _persistSProps = false;
     var _reportingSuiteId = null;
     var _persistReportingSuiteId = true;
@@ -300,21 +300,21 @@
         });
     }
 
-    function _getTrackingServer(){
+    function _getTrackingServer(){ // here
         return _trackingServer;
     }
-    function _getTrackingServerSecure(){
+    function _getTrackingServerSecure(){ // here
         return _trackingServerSecure;
     }
-    function _setTrackingServers(unsecure, secure){
+    function _setTrackingServers(unsecure, secure){ // here
         _trackingServer = unsecure;
         _trackingServerSecure = secure;
     }
     function _sendCallToAdobeAnalytics(di, secure) {
         var body = _xmlPre + di.getPostXmlRequestBody() + _xmlPost;
         var call_options = {
-            host: secure? _trackingServerSecure : _trackingServer,
-            port: secure? 8080 : 80,
+            host: secure? _trackingServerSecure : _trackingServer, // here
+            port: secure? 8080 : 80, // here
             path: '/b/ss//6',
             method: 'POST',
             agent: _adobeAnalyticsHttpAgent,
