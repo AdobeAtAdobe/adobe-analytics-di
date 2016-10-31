@@ -1,9 +1,9 @@
 /* */
 (function(Buffer, process) {
     "use strict";
-    var http = require('http');
+    var https = require('https'); // was http
     var _ = require('underscore');
-    var _adobeAnalyticsHttpAgent = new http.Agent();
+    var _adobeAnalyticsHttpAgent = new https.Agent();
     _adobeAnalyticsHttpAgent.maxSockets = 20;
     var _eVars = [];
     var _persistEvars = true;
@@ -316,7 +316,7 @@
         };
         var req;
         try {
-            req = http.request(call_options, function(res) {
+            req = https.request(call_options, function(res) { // was http
                 var buffer = "";
                 res.on("data", function(data) {
                     buffer = buffer + data;
