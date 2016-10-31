@@ -300,21 +300,11 @@
         });
     }
 
-    function _getTrackingServer(){ // here
-        return _trackingServer;
-    }
-    function _getTrackingServerSecure(){ // here
-        return _trackingServerSecure;
-    }
-    function _setTrackingServers(unsecure, secure){ // here
-        _trackingServer = unsecure;
-        _trackingServerSecure = secure;
-    }
     function _sendCallToAdobeAnalytics(di, secure) {
         var body = _xmlPre + di.getPostXmlRequestBody() + _xmlPost;
         var call_options = {
             host: secure? _trackingServerSecure : _trackingServer, // here
-            port: secure? 8080 : 80, // here
+            port: secure? 443 : 80, // here
             path: '/b/ss//6',
             method: 'POST',
             agent: _adobeAnalyticsHttpAgent,
@@ -338,6 +328,7 @@
             req.on('error', function(e) {
                 console.log('problem with request: ' + e.message);
             });
+            console.log("analytics response",body); // SUCCESS or FAILURE
             req.write(body);
         } catch (e) {
             console.error("Unable to make call to DI API");
