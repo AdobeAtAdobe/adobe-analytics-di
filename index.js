@@ -1,392 +1,466 @@
-/*********************************
- * Adobe Analytics Helper - Data Insertion API helper
- * @author David Benge
- *
+/**
+ * Created by KnightA on 21-Sep-16.
  */
-"use strict";
-/***********
- * https://marketing.adobe.com/developer/en_US/documentation/data-insertion/c-data-insertion-process
- * https://marketing.adobe.com/developer/en_US/documentation/data-insertion/r-supported-tags
- * https://marketing.adobe.com/developer/en_US/documentation/data-insertion/r-sample-http-post
- ***********/
-var http = require('http');
-var _ = require('underscore');
-var _adobeAnalyticsHttpAgent = new http.Agent();
-_adobeAnalyticsHttpAgent.maxSockets = 20; //default connection pool - nodes default is 5
-var _eVars = [];
-var _persistEvars = true;
-var _sProps = [];
-var _persistSProps = false;
-var _reportingSuiteId=null;
-var _persistReportingSuiteId=true;
-var _pageName=null;
-var _persistPageName=true;
-var _defaultIpAddress = process.env.OPENSHIFT_NODEJS_IP;
-var _xmlPre = "<?xml version=1.0 encoding=UTF-8?><request><sc_xml_ver>1.0</sc_xml_ver>";
-var _xmlPost = "</request>";
-//parameter map - keyName : object (name, description,multiform (goofy term for more than one))
-var _parameters = {
-    browserHeight:{postParam:"browserHeight",description:"Browser height in pixels (For example, 768).",multiform:false,getParam:"bh"},
-    browserWidth:{postParam:"browserWidth",description:"Browser width in pixels (For example, 1024).",multiform:false,getParam:"bw"},
-    campaign:{postParam:"campaign",description:"The campaign tracking code associated with the page.",multiform:false,getParam:"v0"},
-    channel:{postParam:"channel",description:"The page title or bread crumb.",multiform:false,getParam:"ch"},
-    colorDepth:{postParam:"colorDepth",description:"Monitor color depth in bits (For example, 24).",multiform:false,getParam:"c"},
-    connectionType:{postParam:"connectionType",description:'Visitors connection type ("lan" or "modem").',multiform:false,getParam:"ct"},
-    contextData:{postParam:"contextData",description:'Key-values pairs are specified in one of the following formats:<my.a>red</my.a> or: <my><a>red</a></my>',multiform:false,getParam:"c.key"},
-    cookiesEnabled:{postParam:"cookiesEnabled",description:'Whether the visitor supports first party session cookies (Y or N).',multiform:false,getParam:"k"},
-    currencyCode:{postParam:"currencyCode",description:'Revenue currency code For example, USD.',multiform:false},
-    eVar:{postParam:"eVar",description:'eVar',multiform:true,max:75},
-    events:{postParam:"events",description:'A list of Analytics events. Multiple events are separated by a comma.event1 or event1,event2',multiform:false,getParam:"events"},
-    hier:{postParam:"hier",description:'A hierarchy string.',multiform:true,max:5,getParam:"h"},
-    homePage:{postParam:"homePage",description:'Whether the current page is the visitors homepage (Y or N).',multiform:false,getParam:"hp"},
-    ipaddress:{postParam:"ipaddress",description:'The visitors IP address.',multiform:false,getParam:""},
-    javaEnabled:{postParam:"javaEnabled",description:'Whether the visitor has Java enabled (Y or N).',multiform:false,getParam:"v"},
-    javaScriptVersion:{postParam:"javaScriptVersion",description:'JavaScript version. For example, 1.3.',multiform:false,getParam:"j"},
-    language:{postParam:"language",description:'The browsers supported language. For example, "en-us".',multiform:false,getParam:""},
-    linkName:{postParam:"linkName",description:'Name of link.',multiform:false,getParam:"pev2"},
-    linkType:{postParam:"linkType",description:'Type of link ("d", "e", or "o").',multiform:false,getParam:"pe"},
-    linkURL:{postParam:"linkURL",description:'The links HREF. For custom links, page values are ignored.',multiform:false,getParam:"pev1"},
-    list:{postParam:"list",description:'A delimited list of values that are passed into a variable, then reported as individual line items for reporting.',multiform:true,max:3,getParam:"l"},
-    pageName:{postParam:"pageName",description:'The Web page name.',multiform:false,getParam:"pageName"},
-    pageType:{postParam:"pageType",description:'The Web page type. This is only used on 404 error pages. Set pageType to "Error Page" for when a 404 error is detected.',multiform:false,getParam:"pageType"},
-    pageURL:{postParam:"pageURL",description:'The Web page URL For example, http://www.mysite.com/index.html.',multiform:false,getParam:"g"},
-    plugins:{postParam:"plugins",description:'Semicolon separated list of Netscape plug-in names.',multiform:false,getParam:"p"},
-    products:{postParam:"products",description:'List of all products on the page. Separate products with a comma. For example: Sports;Ball;1;5.95, Toys; Top;1:1.99.',multiform:false,getParam:"products"},
-    prop:{postParam:"prop",description:'Analytics property name.',multiform:true,getParam:"c",max:75},
-    purchaseID:{postParam:"purchaseID",description:'Purchase ID number.',getParam:"purchaseID",multiform:false},
-    referrer:{postParam:"referrer",description:'The URL of the page referrer.',getParam:"r",multiform:false},
-    reportSuiteID:{postParam:"referrer",description:'Specifies the report suites where you want to submit data. Separate multiple report suite IDs with a comma.',getParam:"",multiform:false},
-    resolution:{postParam:"resolution",description:'Monitor resolution For example, 1280x1024.',getParam:"s",multiform:false},
-    server:{postParam:"server",description:'The Web server serving the page.',getParam:"server",multiform:false},
-    state:{postParam:"state",description:'The visitors U.S. state.',getParam:"state",multiform:false},
-    timestamp:{postParam:"timestamp",description:'The time and date on which the data was collected.',getParam:"ts",multiform:false},
-    timezone:{postParam:"timezone",description:'XML POST: Visitors time zone offset from GMT in hours. For example, -8. GET: The visitors time zone is included in the t query string parameter, which contains the local time. The t parameter is in the following format:',getParam:"t",multiform:false},
-    transactionID:{postParam:"transactionID",description:'Common value used to tie multi-channel user activities together for reporting purposes.',getParam:"xact",multiform:false},
-    userAgent:{postParam:"userAgent",description:'The visitors browser type and OS.',getParam:"",multiform:false},
-    visitorID:{postParam:"visitorID",description:'Visitors Analytics ID',getParam:"vid",multiform:false},
-    marketingCloudVisitorID:{postParam:"marketingCloudVisitorID",description:'Marketing Cloud ID',getParam:"mid",multiform:false},
-    zip:{postParam:"zip",description:'The visitors zip code.',getParam:"zip",multiform:false}
-};
-var _parametersMultiformCache = null;
 
-function _getMultiformProperties(){
-    if(_parametersMultiformCache != null){
-        return _parametersMultiformCache;
-    }else{
-        _parametersMultiformCache = [];
-        //loop over _parameters object and make the list and cache it
-        Object.keys(_parameters).forEach(function(key) {
-            //is multi
-            var isMultiform = _parameters[key].multiform || false;
-            if(isMultiform){
-                _parametersMultiformCache.push(_parameters[key]);
+var Analytics;
+Analytics = {
+
+    ana: undefined,
+    ipAddress: undefined,
+    LastLenth: 0,
+    hostname: "",
+    AKEnvInt: 0,
+    timeoutCounter: undefined,
+    firedCounter: 0,
+    muTimer: undefined,
+    AKdebug: true,
+    MutObserver: undefined,
+    observer: undefined,
+    MutCounter:0,
+    pushCounter:0,
+
+    mutate: function () {
+        ana.MutCounter++;
+        try{
+            if(document.body) {
+                var len = document.body.innerHTML.length;
+
+                if (len != ana.LastLenth) {
+                    clearTimeout(ana.muTimer);
+                    ana.muTimer = setTimeout(function () {
+                        ana.initialiseWatches();
+                    }, 500);
+                }
+                ana.LastLenth = document.body.innerHTML.length;
             }
-        });
-        return _parametersMultiformCache;
-    }
-};
+        } catch (e){
+            if(ana.AKdebug) console.log("Mutate check...", e.message);
 
-function _isMultiform(diDataPropertyName){
-    var multiFormProperties = _getMultiformProperties();
-    for(var i=0;i<multiFormProperties.length;i++){
-        var postParamName = multiFormProperties[i].postParam;
-        if(diDataPropertyName.indexOf(postParamName) >= 0){
+        }
+        setTimeout(function(){ana.mutate();},1000);
+        return ana.MutCounter;
+    },
+
+    selEnv: function (hostnamez) {
+        if (hostnamez.indexOf("informa-labs") > -1) {
+            ana.AKEnvInt = 0;
             return true;
         }
-    }
-
-    return false;
-}
-
-//starts with polyfill
-if (!String.prototype.startsWith) {
-    Object.defineProperty(String.prototype, 'startsWith', {
-        enumerable: false,
-        configurable: false,
-        writable: false,
-        value: function (searchString, position) {
-            position = position || 0;
-            return this.lastIndexOf(searchString, position) === position;
+        if (hostnamez.indexOf(".informaecon.com") > -1) {
+            ana.AKEnvInt = 1;
+            return false;
         }
-    });
-}
+        ana.AKEnvInt = 0; // portal.qa1.agri.informa-labs.com = debug
+        return false;
+    },
 
-function _sendCallToAdobeAnalytics(di){
-    var body = _xmlPre + di.getPostXmlRequestBody() + _xmlPost;
-    //console.info(body);
-    var call_options = {
-        host: self.getReportingSuiteId()+".112.2o7.net",
-        port: 80,
-        path: '/b/ss//6',
-        method: 'POST',
-        agent: _adobeAnalyticsHttpAgent,
-        headers: {
-            'Cookie': "cookie",
-            'Content-Type': 'text/xml',
-            'Content-Length': Buffer.byteLength(body)
+    ipInfo: function () {
+        if (ana.ipAddress == undefined) ana.ipAddress = $.get("https://api.ipify.org"); // get ip address
+    },
+
+    waitforExists: function (node) {
+        if ($(node).length > 0) {
+            ana.watchNode(node);
+            return;
         }
-    };
+        setTimeout(function () {
+            ana.waitforExists(node);
+        }, 500);
+    },
 
-    var req;
-    try{
-        //console.info(call_options);
-        req = http.request(call_options, function(res) {
-            /* */
-            //console.info("calling adobe analytics " + res.statusCode);
-            var buffer = "";
-            res.on("data",function(data){
-                buffer = buffer + data;
+
+
+
+    initialiseWatches: function () {
+        ana.triggerCall('.register-interest-btn', 'mousedown');
+        ana.waitForLoad('compose li>a', 'mousedown');
+        ana.waitForLoad('.list-search-input', 'keyup');
+        ana.waitForLoad('.modebar-group>.modebar-btn', 'mousedown', 'data-title');
+        ana.waitForLoad('.home-list__inner li>a', 'mousedown', 'href');
+        ana.waitForLoad('.dt-buttons>.dt-button', 'mousedown', 'data-analytics-action'); // data-analytics-action
+        ana.waitForLoad('nav a', 'mousedown', 'href', 'Menu Item Selected');
+        if (ana.AKdebug) console.log("---Watches Added---");
+    },
+
+    /**
+     * Update adobe analytics after {delay} timeout, tracks timeout to stop sending multiple updates.
+     * @param x link
+     * @param item element
+     * @param delay in MS
+     */
+    updateAdobeStats: function (x, item, delay) {
+        clearTimeout(ana.timeoutCounter);
+        var a = ana;
+        ana.timeoutCounter = setTimeout(function () {
+            $(a.pushAdobe(x, item));
+        }, delay ? delay : 1000);
+
+    },
+
+
+    /**
+     * Fire an alert based on the triggered event...
+     * @param selector jQuery selector
+     * @param event event to hook
+     */
+    triggerCall: function (selector, event) {
+        if ($(selector).length == 0) {
+            setTimeout(function () {
+                ana.waitForLoad(selector, event);
+            }, 200);
+        } else {
+            $(selector).each(function () {
+
+                // if (ana.AKdebug) console.log("found", selector, "adding", event);
+
+                if (!ana.check(this, event)) {
+                    $(this).bind(event, function AA() {
+                        ana.failedReportRequest();
+                        if (ana.AKdebug) console.log(selector, event);
+                    });
+                }
             });
+        }
+    },
 
-            res.on("end",function(data){
-                console.log(buffer);
-            });
+    waitForLoad: function (x, property, att, txt) {
+        if ($(x).length == 0) {
+            setTimeout(function () {
+                ana.waitForLoad(x, property, att, txt);
+            }, 500);
+        } else {
+            // if (ana.AKdebug) console.log("found '", x, "': ", x.length, 'matches', 'prop:', property, att, txt);
+            if (property != undefined) {
 
-        });
+                $(x).each(function () {
+                    if (!ana.check(this, property)) {
+                        $(this).bind(property, function AA() {
+                            // s.events=s.apl(s.events, 'event1', ',',2);
+                            try {
+                                if (property !== 'keyup' && _elq) {
+                                    _elq.trackOutboundLink(this);
+                                    _elq = undefined; // remove reference to only post once...
+                                    //if (ana.AKdebug) console.log("Eloqua Notified...", "success");
+                                }
+                                var Mtxt = "";
+                                if (att)  s.prop24 = s.eVar24 = $(ana).attr(att);
+                                //console.log($(ana).val());
+                                if($(this).attr('class')) {
+                                    if ($(this).attr('class').indexOf('list-search-input') > -1) {
+                                        Mtxt = ana.replaceQ($(this).val());
+                                        if (Mtxt)  s.prop29 = s.eVar29 = s.eVar30 = Mtxt;
+                                        s.events = s.apl(s.events, 'event14', ',', 2);
+                                    }
 
-        req.on('error', function(e) {
-            console.log('problem with request: ' + e.message);
-        });
+                                    //if (ana.AKdebug) console.log(property, Mtxt, att, ana);
 
-        req.write( body );
+                                    if (property == 'keyup') {
+                                        ana.updateAdobeStats(false, this, 1000);
+                                    } else {
 
-    }catch(e){
-        console.error("Unable to make call to DI API");
-        console.error(e);
-    }finally{
-        req.end();
-    }
-};
+                                        ana.updateAdobeStats(false, this, 500); // *
+                                    }
+                                }
 
-function _validateValidDiParameters(diData){
-    Object.keys(diData).forEach(function(key) {
-        //is multi
-        var fetchTest = _parameters[key]; //does the key exist if so its valid for the call to the backend
-        if(!fetchTest){
-            var isMulti = _isMultiform(key); //on multiform you wont get a direct name match so we need to check and make sure its valid and in range
-            if(isMulti){
-                //so we know its semi valid would could check the number against the max range but I am lazy and thats just extra overhead and I already have a lot of overhead in the validation.
-                return true;
-            }else{
-                throw new Error("Passed reporting property name "+key+" is invalid");
+                            } catch (e) {
+                                var msg = "Error: " + e.message + ".";
+                                if (ana.AKdebug) console.log(msg, property);
+                                //toastr.error(msg, property);
+                            }
+                        });
+                    }
+                })
             }
         }
-    });
-}
+    },
 
-function _getSpropsFromDiParameters(diData){
-    var propsReturn = {};
-    Object.keys(diData).forEach(function(key) {
-        if(key.startsWith(_parameters.prop.postParam)){
-            propsReturn[key] = diData[key];
-        }
-    });
+    check: function (item, event) {
+        var anaClean = $._data(item, 'events');
+        if (!anaClean) return false;
 
-    return propsReturn;
-}
-
-function _getEvarsFromDiParameters(diData){
-    var evarReturn = {};
-    Object.keys(diData).forEach(function(key) {
-        if(key.startsWith(_parameters.eVar.postParam)){
-            //console.log("################ starts with evar #####");
-            evarReturn[key] = diData[key];
-        }
-        //console.info(JSON.stringify(key, null, 2));
-        //console.info(JSON.stringify(diData[key], null, 2));
-    });
-
-    return evarReturn;
-}
-
-function DataInsertion(data){
-    _validateValidDiParameters(data);
-
-    /** check persistence **/
-    if(_persistPageName && (typeof data[_parameters.pageName.postParam] != 'undefined')){
-        _pageName = data[_parameters.pageName.postParam];
-    }else if(_persistPageName && (typeof data[_parameters.pageName.postParam] == 'undefined') && (_pageName != null)){
-        //set it to the last value used
-        data[_parameters.pageName.postParam] = _pageName;
-    }
-
-    if(_persistReportingSuiteId && (typeof data[_parameters.reportSuiteID.postParam] != 'undefined')){
-        _reportingSuiteId = data[_parameters.reportSuiteID.postParam];
-    }else if(_persistReportingSuiteId && (typeof data[_parameters.reportSuiteID.postParam] == 'undefined') && (_reportingSuiteId != null)){
-        //set it to the last value used
-        data[_parameters.reportSuiteID.postParam] = _reportingSuiteId;
-    }
-
-    if(_persistEvars){
-        var callEvars = _getEvarsFromDiParameters(data);
-        var mergedEvars = _.extend(_eVars,callEvars);
-        _eVars = mergedEvars; //update the persistence
-        data = _.extend(data,mergedEvars); //update the original request object with any cached
-    }
-
-    if(_persistSProps){
-        var callSprops = _getSpropsFromDiParameters(data);
-        var mergedSprops = _.extend(_sProps,callSprops);
-        _sProps = mergedSprops; //update the persistence
-        data = _.extend(data,mergedSprops); //update the original request object with any cached
-    }
-    /** check persistence end **/
-
-    /*** Checking Requirements ***/
-    //CHECK for the definition of either reportSuiteID on data parameter or in the helper
-    if((typeof data.reportSuiteID == 'undefined') && (_reportingSuiteId == null)){
-        throw new Error('reportSuiteID is required');
-    }else{
-        data['reportSuiteID'] = data.reportSuiteID || _reportingSuiteId;
-    }
-
-    //visitor id or ipAddress is required
-    if(typeof data.IPaddress == 'undefined'){
-        if((typeof _defaultIpAddress != 'undefined') && (_defaultIpAddress != null)){
-            data['IPaddress'] = _defaultIpAddress;
-        }
-    }
-
-    //check either ip or visitor is defined
-    if((typeof data.visitorID == 'undefined') && (typeof data.IPaddress == 'undefined')){
-        throw new Error('visitorID OR IPaddress must be defined');
-    }
-
-    //Page name or page url is required
-    if((typeof data.pageName == 'undefined') && (typeof data.pageURL == 'undefined')){
-        throw new Error('pageName OR pageURL must be defined');
-    }
-    /*** End Checking Requirements ***/
-
-    this.getPostXmlRequestBody=function(){
-        //return big xml string with the requestProps formatted correctly
-        var xmlString = "";
-
-        //loop over values passed
-        for (var property in data) {
-            if (data.hasOwnProperty(property)) {
-                xmlString += "<"+property+">"+data[property]+"</"+property+">";
+        if (event == 'mousedown') {
+            try {
+                if (anaClean.mousedown && anaClean.mousedown.length > 0) for (var i = anaClean.mousedown.length - 1; i > -1; i--) if (anaClean.mousedown[i].handler.name === "AA") {
+                    return true;
+                }
+            } catch (e) {
+            }
+            return false;
+        } else if (event == 'keyup') {
+            try {
+                if (anaClean.keyup && anaClean.keyup.length > 0) for (var i = anaClean.keyup.length - 1; i > -1; i--) if (anaClean.keyup[i].handler.name === "AA") {
+                    return true;
+                }
+            } catch (e) {
             }
         }
+        return false;
+    },
 
-        return xmlString;
-    };
+    replaceQ: function (a) {
+        if (a) return a.toString().replace(/["']/g, "")
+    },
 
-    /****
-     * getRequestPropsAsJson
-     *
-     * @returns {json} request properties
-     */
-    this.getRequestPropsAsJson=function(){
-        return JSON.stringify(data, null, 2);
-    };
-
-};
-
-var AdobeAnalyticsHelper = {
-    evars:_eVars,
-    sprops:_sProps,
     /**
-     * @doc linkType
-     * @name AdobeAnalyticsHelper:linkType
-     *
-     * @description Enum for the link type.
-     *
-     * When passing in options on what to track you can pass in linkType.CUSTOM or o if you are fancy
-     *
+     * Log a failed report request (empty report)
      */
-    linkType:{
-        "CUSTOM":"o",
-        "EXIT":"e",
-        "DOWNLOAD":"d"
-    },
-    recordEvent:function(){
+    failedReportRequest: function () {
+        s.events = s.apl(s.events, 'event3', ',', 2); // log as an Unsuccessful Search(es)...
+        ana.pushAdobe();
+        var hash = window.location.hash.substring(window.location.hash.lastIndexOf('/') + 1);
+        if (ana.AKdebug) console.log('Logged request against Alert for ' + hash);
 
     },
-    /**
-     * @doc setReportingSuiteId
-     * @name AdobeAnalyticsHelper:setReportingSuiteId
-     *
-     * @description sets the reporting suite id
-     *
-     */
-    setReportingSuiteId:function(reportingSuiteId){
-        _reportingSuiteId = reportingSuiteId;
-    },
-    /**
-     * @doc getReportingSuiteId
-     * @name AdobeAnalyticsHelper:getReportingSuiteId
-     *
-     * @description gets the reporting suite id
-     *
-     */
-    getReportingSuiteId:function(){
-        return _reportingSuiteId;
-    },
-    /**
-     * @doc getDataInsertion
-     * @name AdobeAnalyticsHelper:getDataInsertion
-     *
-     * @description gets the Data Insertion object that will be sent to the server
-     *
-     * the server wants XML, i thought it was cleaner to make an new object and mock serialize it out to xml
-     * over dealing with xml objects or some serialization lib.  I think it will be easier and have less overhead to use.
-     */
-    getDataInsertion:function(diData){
-        return new DataInsertion(diData);
-    },
-    sendCallToAdobeAnalytics:function(di){
-        if(di instanceof DataInsertion){
-            _sendCallToAdobeAnalytics(di);
+
+    getUserCookie: function () {
+        var res = $.parseJSON(localStorage.getItem("agri.user"));
+        if (!res) {
+            for (var i = 0; i < localStorage.length; i++) {
+                if (localStorage.key(i).toString().indexOf('oidc.user') > -1) {
+                    return $.parseJSON(localStorage.getItem(localStorage.key(i))).profile;
+                }
+            }
         }
-        else{
-            throw new Error('di parameter passed is not an instance of DataInsertion. Please use getDataInsertion to get a new object instance to pass.');
+        return res;
+    },
+
+    correctCase: function (c) {
+        try {
+
+            var f = c.replace(/-/g," ").split(" ");
+            var x = "";
+            for (var i = 0; i < f.length; i++) {
+                x += f[i].substring(0, 1).toUpperCase();
+                x += f[i].substring(1).toLowerCase();
+                x += " ";
+            }
+            return x.trim();
+        } catch (ee) {
+            return c;
         }
     },
-    /**
-     * @doc sendToAdobeAnalytics
-     * @name AdobeAnalyticsHelper:sendToAdobeAnalytics
-     *
-     * @description this method will take a generic object then create a DI object and pass it to the analytics backend
-     *
-     * Its the same as calling sendCallToAdobeAnalytics(di) except it will create the DI object for you off a generic object then pass it in for you.
-     *
-     */
-    sendToAdobeAnalytics:function(myDataObject){
-        var myDi = self.getDataInsertion(myDataObject);
-        self.sendCallToAdobeAnalytics(myDi);
+    prepAndSendToAdobe(element){
+        this.pushAdobe();
+    },
+    testReturn: function(){
+        return s;
     },
     /**
-     * @doc getMaxSockets
-     * @name AdobeAnalyticsHelper:getMaxSockets
-     *
-     * @description gets the pool size on the custom node http agent used to connect to the Adobe Analytics Data Insertion API. Default is 20
-     *
+     * push results to adobe
+     * @param x bool, false = page, true = link
+     * @param node = selector value to retrieve text of for page name logging...
      */
-    getMaxSockets:function(){
-        return _adobeAnalyticsHttpAgent.maxSockets;
+    pushAdobe: function (x, node) {
+        //if (ana.AKdebug) console.log("~~~Pushing~~~");
+
+        if (s) {
+            var userForStats = ana.getUserCookie();
+            if (userForStats) {
+                // console.log(userForStats);
+                /*Time Parting*/
+                s.prop19 = s.eVar19 = s.getTimeParting('h', '+1', (s.currDate).getFullYear()); // Set hour
+                s.prop21 = s.eVar21 = s.getTimeParting('d', '+1', (s.currDate).getFullYear()); // Set day
+                s.prop25 = s.eVar25 = s.getTimeParting('w', '+1', (s.currDate).getFullYear()); // Set Weekend / Weekday
+
+                s.server = window.location.hostname;
+                s.campaign = "Agri";
+
+                s.prop66 = s.eVar64 = ana.replaceQ(userForStats.username ? userForStats.username : userForStats.preferred_username); // email
+                s.eVar62 = s.prop63 = ana.replaceQ((userForStats.channels ? userForStats.channels : userForStats.channel).toString()); // entitlement
+                // if (ana.AKdebug) console.log("~~~~~~~~~~~~~~~~~Setting Path~~~~~~~~~~~~~~~~", s.eVar4);
+
+                s.eVar1 = s.prop1 = s.channel = s.eVar43 = s.prop43 = ana.getRelativePath(window.location.href, 4); // sub section
+                s.eVar2 = s.prop2 = ana.getRelativePath(window.location.href, 5); // sub section 2
+                s.eVar3 = s.prop3 = ana.getRelativePath(window.location.href, 6); // sub section 3
+                s.eVar4 = s.prop4 = s.prop10 = ana.getRelativePath(window.location.href, 7); // sub section 4
+                s.eVar5 = s.prop5 = ana.getRelativePath(window.location.href, 8); // sub section 5
+                // if (ana.AKdebug) console.log("~~~~~~~~~~~~~~~~~Path Set~~~~~~~~~~~~~~~~", s.eVar4);
+
+                // page type (human readable)! set to path part Chart, Table...
+                s.eVar7 = s.prop7 = ana.correctCase(
+                    s.eVar1 + " " + s.eVar2 != " " ? s.eVar1 + " " + s.eVar2 + (s.eVar3!=""? " " + s.eVar3 : "") : "home page"
+                );
+
+                // Company name (Tom working on obtaining)
+                s.eVar13 = s.prop13 = "";
+
+
+                s.eVar8 = ana.replaceQ($(document).attr('title')); // Page Name
+
+                var po = "";
+                if(node!=undefined) po = $(node).text().trim();
+                //$('router-view section div h2').text()
+                //if(po.length>5 || po == undefined) po=" ";
+
+                s.eVar8 = s.prop8 = s.pageName = (po.length > 0) ? po : (s.eVar8); // set to chart title for better reporting
+
+                s.eVar65 = s.prop67 = ana.ipAddress.responseText; // Ip Address
+                s.eVar70 = s.prop72 = 'session:' + s.Util.cookieRead('kampyleUserSession'); // Session Id
+                if (ana.AKdebug) {
+                    console.log("~~~Pushed~~~");
+                }
+
+
+                var s_code;
+                if (!x) {
+                    s_code = s.t();
+                    if (ana.AKdebug) console.log("Sent page update to Adobe Analytics", "Success"); // info, warn, error, success
+                } else {
+                    /* s.tl(ana,linkType,linkName, variableOverrides, doneAction)
+                     linkType
+                     File Downloads	'd'
+                     Exit Links	'e'
+                     Custom Links	'o'
+                     linkName
+                     ana can be any custom value, up to 100 characters. ana determines how the link is displayed in the appropriate report.
+                     variableOverrides
+                     (Optional, pass null if not using) ana lets you change variable values for ana single call, It is similar to other AppMeasurement libraries.
+                     doneAction
+                     (optional) Specifies the action to take after the link track call is sent or has timed out, based on the value specified by:
+                     The doneAction variable can be the string navigate, which causes the method to set document.location to the href attribute of linkObject. The doneAction variable can also be a function allowing for advanced customization.
+                     If providing a value for doneAction in an anchor onClick event, you must return false after the s.tl call to prevent the default browser navigation.
+                     To mirror the default behavior and follow the URL specified by the href attribute, provide a string of navigate as the doneAction .
+                     Optionally, you can provide your own function to handle the navigation event by passing ana function as the doneAction.
+                     Examples:
+                     <a href="..." onclick="s.tl(ana,'o','MyLink',null,'navigate');return false">Click Here</a>
+                     <a href="#" onclick="s.tl(ana,'o','MyLink',null,function(){if(confirm('Proceed?'))document.location=...});return false">Click Here</a>
+                     */
+                    s_code = s.tl(ana, 'o', null, 'navigate');
+                    if (ana.AKdebug) console.log("Sent link update to Adobe Analytics", "success"); // info, warn, error, success
+                }
+
+
+                //  if (s_code)document.write(s_code);
+                if (ana.AKdebug && s_code != undefined) console.log('result: ', s_code); // log on error returned
+
+                s.events = "";
+                s.eVar7= s.prop7 = "";
+                s.clearVars();
+                ana.pushCounter++;
+                return;
+            }
+            if (ana.AKdebug) console.log("userForStats: cookie doesn't exist"); // info, warn, error, success
+            return;
+        }
+        if (ana.AKdebug) console.log("Analytics code undefined"); // info, warn, error, success
     },
-    /**
-     * @doc setMaxSockets
-     * @name AdobeAnalyticsHelper:setMaxSockets
-     *
-     * @description sets the pool size on the custom node http agent used to connect to the Adobe Analytics Data Insertion API. Default is 20
-     *
-     */
-    setMaxSockets:function(max){
-        _adobeAnalyticsHttpAgent.maxSockets;
+
+    getRelativePath: function (path, part) {
+        var pathArray = path.split('/');
+        var output = "";
+        var startAt = 3;
+        if (pathArray.length <= 3) {
+            //startAt = 3;
+            if (part <= pathArray.length) {
+                return "Home";
+            } else {
+                return "";
+            }
+        }
+        for (var i = startAt; i < pathArray.length; i++) {
+            if (part != undefined) {
+                if (part == i) return pathArray[i];
+            }
+        }
+        return output;
     },
-    /**
-     * @doc getDiParameters
-     * @name AdobeAnalyticsHelper:getDiParameters
-     *
-     * @description gets the map we use to drive the API
-     *
-     * Just in case you need this for something or were interested to see whats in there
-     */
-    getDiParameters:function(){
-        return _parameters;
+
+    getQueryVariable: function (variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            if (pair[0] == variable) {
+                return pair[1];
+            }
+        }
+        return (false);
+    },
+
+
+    initListener: function () {
+        window.addEventListener('message', function (event) {
+
+            // IMPORTANT: Check the origin of the data!
+            // ana is for testing multiple copies of ana site within iframes... keep...?
+            if (~event.origin.indexOf('informa-labs') || ~event.origin.indexOf('econ.com')) {
+                // The data has been sent from your site
+                // The data sent with postMessage is stored in event.data
+                var elem = $('a')[event.data];
+                ana.updateAdobeStats(false, elem, 2000); //*
+            } else {
+                // The data hasn't been sent from our site!
+                console.log("came from ", event.origin, ", not allowed");
+
+            }
+        })
+    },
+
+    watchNode: function (node) {
+        if(ana.observer) {
+            $(node).each(function (idx, elem) {
+                if (ana.AKdebug) {
+                    console.log("> Added observer for ", typeof(elem), $(elem).attr("class"));
+                }
+                ana.observer.observe(elem, {
+                    childList: true,
+                    attributes: false,
+                    characterData: false,
+                    subtree: true,
+                    attributeOldValue: false
+                });
+            });
+        }else {
+            if (ana.AKdebug) {
+                console.log("> mutation of dom ", node);
+            }
+        }
+    },
+
+    init: function () {
+        ana = this;
+        ana.hostname = window.location.hostname;
+        /*       ana.MutObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver || undefined;
+
+         if(ana.MutObserver) {
+         ana.observer = new ana.MutObserver(function (mutations) {
+         // fired when a mutation occurs
+         ana.firedCounter += 1;
+
+         if (mutations.length) {
+         clearTimeout(ana.muTimer);
+         ana.muTimer = setTimeout(function () {
+
+         ana.initialiseWatches();
+         }, 500);
+         // waitForLoad('iap-navigation');
+
+         }
+         if(ana.AKdebug) console.log("Observer");
+         });
+         } else {
+         $(function(){
+         ana.mutate();
+         });
+         }*/
+
+        ana.AKdebug = ana.selEnv(ana.hostname);
+        ana.ipInfo();
+        // first...
+        // ana.initListener();
+
+        //  ana.updateAdobeStats();
+
+// define what element should be observed by the observer
+// and what types of mutations trigger the callback
+
+        //    ana.waitforExists('div.page-wrapper');
+        window.analytics = ana;
+        AppMeasurementInit(window.analytics);
+        return ana;
     }
 };
 
-var self = module.exports = AdobeAnalyticsHelper;
+module.exports = Analytics = Analytics.init();
+
+
