@@ -239,9 +239,11 @@ Analytics = {
             return c;
         }
     },
-
+    prepAndSendToAdobe(element){
+        this.pushAdobe();
+    },
     testReturn: function(){
-        return s.testReturn();
+        return s;
     },
     /**
      * push results to adobe
