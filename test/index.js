@@ -1,23 +1,10 @@
 var should = require('chai').should();
 var adobeAnalyticsHelper = require('../index')
 
-it('should set tracking servers', function () {
-    var ts = "trackingserver";
-    var tss = "trackingserversecure";
-    adobeAnalyticsHelper.setTrackingServers(ts, tss);
-    adobeAnalyticsHelper.getTrackingServer().should.equal(ts);
-    adobeAnalyticsHelper.getTrackingServerSecure().should.equal(tss);
 
-});
-
-it('should set reporting suite ID', function () {
-    adobeAnalyticsHelper.setReportingSuiteId("MY-REPORTING-SUITE-ID");
-    adobeAnalyticsHelper.getReportingSuiteId().should.equal("MY-REPORTING-SUITE-ID");
-});
-
-it('should create a DI xml object to post', function () {
+it('should create a submission package', function () {
     var callData = {
-        visitorID: 'myvisitorId',
+        visitorID: '301334FA53DB0A850A490D44@AdobeOrg',
         pageName: 'My Home Page',
         channel: 'My Channel name',
         eVar10: 'test evar10 value',
@@ -25,9 +12,9 @@ it('should create a DI xml object to post', function () {
         events: "event10,event11"
     };
 
-    var testResult = '<visitorID>myvisitorId</visitorID><pageName>My Home Page</pageName><channel>My Channel name</channel><eVar10>test evar10 value</eVar10><prop10>test prop10 value</prop10><events>event10,event11</events><referrer>MY-REPORTING-SUITE-ID</referrer><reportSuiteID>MY-REPORTING-SUITE-ID</reportSuiteID>';
 
-    var myDi = adobeAnalyticsHelper.getDataInsertion(callData);
+    console.log(adobeAnalyticsHelper.testReturn());
 
-    myDi.getPostXmlRequestBody().should.equal(testResult);
+    adobeAnalyticsHelper.pushAdobe();
+
 });
