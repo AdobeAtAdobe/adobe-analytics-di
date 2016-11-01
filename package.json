@@ -3,7 +3,6 @@
   "version": "1.0.5",
   "description": "Adobe Analytics aka SiteCatalyst data insertion API module for Node.js with TS modifications. Original author David Benge.",
   "main": "index.js",
-  "files": ["./backend.js", "./VisitorAPI.js"],
   "scripts": {
     "test": "make test"
   },

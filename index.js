@@ -1,7 +1,7 @@
 /**
  * Created by KnightA on 21-Sep-16.
  */
-var s = require("./backend");
+
 var Analytics;
 Analytics = {
 
@@ -256,9 +256,9 @@ Analytics = {
             if (userForStats) {
                 // console.log(userForStats);
                 /*Time Parting*/
-                s.prop19 = s.eVar19 = s.getTimeParting('h', '+1', currDate.getFullYear()); // Set hour
-                s.prop21 = s.eVar21 = s.getTimeParting('d', '+1', currDate.getFullYear()); // Set day
-                s.prop25 = s.eVar25 = s.getTimeParting('w', '+1', currDate.getFullYear()); // Set Weekend / Weekday
+                s.prop19 = s.eVar19 = s.getTimeParting('h', '+1', (s.currDate).getFullYear()); // Set hour
+                s.prop21 = s.eVar21 = s.getTimeParting('d', '+1', (s.currDate).getFullYear()); // Set day
+                s.prop25 = s.eVar25 = s.getTimeParting('w', '+1', (s.currDate).getFullYear()); // Set Weekend / Weekday
 
                 s.server = window.location.hostname;
                 s.campaign = "Agri";
@@ -418,40 +418,43 @@ Analytics = {
     init: function () {
         ana = this;
         ana.hostname = window.location.hostname;
-        ana.MutObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver || undefined;
-        
-        if(ana.MutObserver) {
-            ana.observer = new ana.MutObserver(function (mutations) {
-                // fired when a mutation occurs
-                ana.firedCounter += 1;
+        /*       ana.MutObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver || undefined;
 
-                if (mutations.length) {
-                    clearTimeout(ana.muTimer);
-                    ana.muTimer = setTimeout(function () {
+         if(ana.MutObserver) {
+         ana.observer = new ana.MutObserver(function (mutations) {
+         // fired when a mutation occurs
+         ana.firedCounter += 1;
 
-                        ana.initialiseWatches();
-                    }, 500);
-                    // waitForLoad('iap-navigation');
+         if (mutations.length) {
+         clearTimeout(ana.muTimer);
+         ana.muTimer = setTimeout(function () {
 
-                }
-                if(ana.AKdebug) console.log("Observer");
-            });
-        } else {
-            $(function(){
-                ana.mutate();
-            });
-        }
+         ana.initialiseWatches();
+         }, 500);
+         // waitForLoad('iap-navigation');
+
+         }
+         if(ana.AKdebug) console.log("Observer");
+         });
+         } else {
+         $(function(){
+         ana.mutate();
+         });
+         }*/
 
         ana.AKdebug = ana.selEnv(ana.hostname);
         ana.ipInfo();
         // first...
         // ana.initListener();
 
-        ana.updateAdobeStats();
+        //  ana.updateAdobeStats();
+
 // define what element should be observed by the observer
 // and what types of mutations trigger the callback
-        ana.waitforExists('div.page-wrapper');
 
+        //    ana.waitforExists('div.page-wrapper');
+        window.analytics = ana;
+        AppMeasurementInit(window.analytics);
         return ana;
     }
 };
