@@ -14,6 +14,7 @@ Setup the analytics di api<br/>
 var adobeAnalyticsHelper = require('adobe-analytics-di');
 adobeAnalyticsHelper.setReportingSuiteId("MY-REPORTING-SUITE-ID");
 ```
+
 <br/>
 Send data to Adobe Analytics. Note that the property names are case sensitive because they get used in the XML sent to the DI API<br/>
 ```javascript
