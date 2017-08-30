@@ -10,10 +10,10 @@ This module allows you to push data into your Adobe Analytics reporting suite fr
 <br/>
 Example<br/>
 Setup the analytics di api<br/>
-```javascript
+`javascript
 var adobeAnalyticsHelper = require('adobe-analytics-di');
 adobeAnalyticsHelper.setReportingSuiteId("MY-REPORTING-SUITE-ID");
-```
+`
 
 <br/>
 Send data to Adobe Analytics. Note that the property names are case sensitive because they get used in the XML sent to the DI API<br/>
