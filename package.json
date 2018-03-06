@@ -17,7 +17,7 @@
     "sitecatalyst"
   ],
   "author": "David Benge",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/AdobeAtAdobe/adobe-analytics-di/issues"
   },
