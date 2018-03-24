@@ -18,6 +18,13 @@ var _persistEvars = true;
 var _sProps = [];
 var _persistSProps = false;
 var _reportingSuiteId=null;
+var _loggingLevel = 1;
+var _loggingLevels = {
+    none: 0,
+    error: 1,
+    warn: 2,
+    all: 3
+};
 var _persistReportingSuiteId=true;
 var _pageName=null;
 var _persistPageName=true;
@@ -84,7 +91,7 @@ function _getMultiformProperties(){
         });
         return _parametersMultiformCache;
     }
-};
+}
 
 function _isMultiform(diDataPropertyName){
     var multiFormProperties = _getMultiformProperties();
@@ -113,7 +120,6 @@ if (!String.prototype.startsWith) {
 
 function _sendCallToAdobeAnalytics(di){
     var body = _xmlPre + di.getPostXmlRequestBody() + _xmlPost;
-    //console.info(body);
     var call_options = {
         host: self.getReportingSuiteId()+".112.2o7.net",
         port: 80,
@@ -129,34 +135,35 @@ function _sendCallToAdobeAnalytics(di){
 
     var req;
     try{
-        //console.info(call_options);
         req = http.request(call_options, function(res) {
-            /* */
-            //console.info("calling adobe analytics " + res.statusCode);
             var buffer = "";
             res.on("data",function(data){
                 buffer = buffer + data;
             });
 
             res.on("end",function(data){
-                console.log(buffer);
+                if(_loggingLevel >= _loggingLevels[all]) 
+                    console.log(buffer);
             });
 
         });
 
         req.on('error', function(e) {
-            console.log('problem with request: ' + e.message);
+            if(_loggingLevel >= _loggingLevels[error])
+                console.error('problem with request: ' + e.message);
         });
 
         req.write( body );
 
     }catch(e){
-        console.error("Unable to make call to DI API");
-        console.error(e);
+        if(_loggingLevel >= _loggingLevels[error]){
+            console.error("Unable to make call to DI API");
+            console.error(e);
+        }
     }finally{
         req.end();
     }
-};
+}
 
 function _validateValidDiParameters(diData){
     Object.keys(diData).forEach(function(key) {
@@ -189,11 +196,8 @@ function _getEvarsFromDiParameters(diData){
     var evarReturn = {};
     Object.keys(diData).forEach(function(key) {
         if(key.startsWith(_parameters.eVar.postParam)){
-            //console.log("################ starts with evar #####");
             evarReturn[key] = diData[key];
         }
-        //console.info(JSON.stringify(key, null, 2));
-        //console.info(JSON.stringify(diData[key], null, 2));
     });
 
     return evarReturn;
@@ -281,7 +285,7 @@ function DataInsertion(data){
         return JSON.stringify(data, null, 2);
     };
 
-};
+}
 
 var AdobeAnalyticsHelper = {
     evars:_eVars,
@@ -374,7 +378,7 @@ var AdobeAnalyticsHelper = {
      *
      */
     setMaxSockets:function(max){
-        _adobeAnalyticsHttpAgent.maxSockets;
+        _adobeAnalyticsHttpAgent.maxSockets = max;
     },
     /**
      * @doc getDiParameters
@@ -386,6 +390,50 @@ var AdobeAnalyticsHelper = {
      */
     getDiParameters:function(){
         return _parameters;
+    },
+    /**
+     * @doc setLoggingLevel
+     * @name AdobeAnalyticsHelper:setLoggingLevel
+     *
+     * @description sets logging level [0,1,2,3] see _loggingLevels
+     *
+     */
+    setLoggingLevel:function(level){
+        if(typeof level !== "number") return;
+        if(level <= _loggingLevels.length && level >= 0) 
+            _loggingLevel = level;
+    },
+    /**
+     * @doc getLoggingLevel
+     * @name AdobeAnalyticsHelper:getLoggingLevel
+     *
+     * @description gets logging level [0,1,2,3] see _loggingLevels
+     *
+     */
+    getLoggingLevel:function(){
+        return _loggingLevel;
+    },
+    /**
+     * @doc setPersistSProps
+     * @name AdobeAnalyticsHelper:setPersistSProps
+     *
+     * @description sets whether to persist sProps
+     *
+     */
+    setPersistSProps:function(toPersist){
+        if(typeof toPersist !== "boolean") return;
+        _persistSProps = toPersist;
+    },
+    /**
+     * @doc setPersistEVars
+     * @name AdobeAnalyticsHelper:setPersistEVars
+     *
+     * @description sets whether to persist Evars
+     *
+     */
+    setPersistEVars:function(toPersist){
+        if(typeof toPersist !== "boolean") return;
+        _persistEvars = toPersist;
     }
 };
 
