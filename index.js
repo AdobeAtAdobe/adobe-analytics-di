@@ -142,21 +142,21 @@ function _sendCallToAdobeAnalytics(di){
             });
 
             res.on("end",function(data){
-                if(_loggingLevel >= _loggingLevels[all]) 
+                if(_loggingLevel >= _loggingLevels["all"]) 
                     console.log(buffer);
             });
 
         });
 
         req.on('error', function(e) {
-            if(_loggingLevel >= _loggingLevels[error])
+            if(_loggingLevel >= _loggingLevels["error"])
                 console.error('problem with request: ' + e.message);
         });
 
         req.write( body );
 
     }catch(e){
-        if(_loggingLevel >= _loggingLevels[error]){
+        if(_loggingLevel >= _loggingLevels["error"]){
             console.error("Unable to make call to DI API");
             console.error(e);
         }
