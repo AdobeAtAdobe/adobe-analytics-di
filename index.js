@@ -111,7 +111,11 @@ if (!String.prototype.startsWith) {
     });
 }
 
-function _sendCallToAdobeAnalytics(di){
+function _sendCallToAdobeAnalytics(di, logger){
+    if (!logger) {
+        logger = console;
+    }
+
     var body = _xmlPre + di.getPostXmlRequestBody() + _xmlPost;
     //console.info(body);
     var call_options = {
@@ -139,20 +143,20 @@ function _sendCallToAdobeAnalytics(di){
             });
 
             res.on("end",function(data){
-                console.log(buffer);
+                logger.log(buffer);
             });
 
         });
 
         req.on('error', function(e) {
-            console.log('problem with request: ' + e.message);
+            logger.log('problem with request: ' + e.message);
         });
 
         req.write( body );
 
     }catch(e){
-        console.error("Unable to make call to DI API");
-        console.error(e);
+        logger.error("Unable to make call to DI API");
+        logger.error(e);
     }finally{
         req.end();
     }
@@ -335,9 +339,9 @@ var AdobeAnalyticsHelper = {
     getDataInsertion:function(diData){
         return new DataInsertion(diData);
     },
-    sendCallToAdobeAnalytics:function(di){
+    sendCallToAdobeAnalytics:function(di, logger){
         if(di instanceof DataInsertion){
-            _sendCallToAdobeAnalytics(di);
+            _sendCallToAdobeAnalytics(di, logger);
         }
         else{
             throw new Error('di parameter passed is not an instance of DataInsertion. Please use getDataInsertion to get a new object instance to pass.');
@@ -352,9 +356,9 @@ var AdobeAnalyticsHelper = {
      * Its the same as calling sendCallToAdobeAnalytics(di) except it will create the DI object for you off a generic object then pass it in for you.
      *
      */
-    sendToAdobeAnalytics:function(myDataObject){
+    sendToAdobeAnalytics:function(myDataObject, logger){
         var myDi = self.getDataInsertion(myDataObject);
-        self.sendCallToAdobeAnalytics(myDi);
+        self.sendCallToAdobeAnalytics(myDi, logger);
     },
     /**
      * @doc getMaxSockets
