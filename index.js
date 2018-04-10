@@ -131,35 +131,40 @@ function _sendCallToAdobeAnalytics(di, logger){
         }
     };
 
-    var req;
-    try{
-        //console.info(call_options);
-        req = http.request(call_options, function(res) {
-            /* */
-            //console.info("calling adobe analytics " + res.statusCode);
-            var buffer = "";
-            res.on("data",function(data){
-                buffer = buffer + data;
+    return new Promise(function(resolve, reject) {
+        var req;
+        try{
+            //console.info(call_options);
+            req = http.request(call_options, function(res) {
+                /* */
+                //console.info("calling adobe analytics " + res.statusCode);
+                var buffer = "";
+                res.on("data",function(data){
+                    buffer = buffer + data;
+                });
+
+
+                res.on("end",function(data){
+                    if (res.statusCode !== 200) {
+                        reject(buffer);
+                    }
+                    resolve(buffer);
+                });
+
             });
 
-            res.on("end",function(data){
-                logger.log(buffer);
+            req.on('error', function(e) {
+                reject(e.message);
             });
 
-        });
+            req.write( body );
 
-        req.on('error', function(e) {
-            logger.log('problem with request: ' + e.message);
-        });
-
-        req.write( body );
-
-    }catch(e){
-        logger.error("Unable to make call to DI API");
-        logger.error(e);
-    }finally{
-        req.end();
-    }
+        }catch(e){
+            reject(e);
+        }finally{
+            req.end();
+        }
+    });
 };
 
 function _validateValidDiParameters(diData){
@@ -341,7 +346,7 @@ var AdobeAnalyticsHelper = {
     },
     sendCallToAdobeAnalytics:function(di, logger){
         if(di instanceof DataInsertion){
-            _sendCallToAdobeAnalytics(di, logger);
+            return _sendCallToAdobeAnalytics(di, logger);
         }
         else{
             throw new Error('di parameter passed is not an instance of DataInsertion. Please use getDataInsertion to get a new object instance to pass.');
