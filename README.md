@@ -1,11 +1,11 @@
 # adobe-analytics-di
 ![TrackingImage](https://adobeatadobe.d1.sc.omtrdc.net/b/ss/adbeaaagit/1/H.27.5--NS/0?AQB=1&ndh=1&ce=UTF-8&ns=adobeatadobe&pageName=github%3Aadobe-analytics-di%3Areadme&g=%2FAdobeAtAdobe%2Fadobe-analytics-di&ch=github)
-Adobe Analytics aka SiteCatalyst data insertion module for Node.js<br/>
-This module allows you to push data into your Adobe Analytics reporting suite from the server side.  It uses the Data Insertion API to push your data in.
+Adobe Analytics Data Insertion Module<br/>
+This node module allows you to push data into your Adobe Analytics reporting suite from the server side.  It uses the Data Insertion API to push your data into your reporting suite.
 
 ## Installation
 
-  npm install adobe-analytics-di --save
+npm install adobe-analytics-di --save
 
 Example
 Setup the analytics di api
