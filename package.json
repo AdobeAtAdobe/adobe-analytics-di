@@ -1,6 +1,6 @@
 {
   "name": "adobe-analytics-di",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Adobe Analytics aka SiteCatalyst data insertion API module for Node.js",
   "main": "index.js",
   "scripts": {
