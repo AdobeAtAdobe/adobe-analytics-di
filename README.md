@@ -51,3 +51,4 @@ if (myDi != null) {
 * 1.0.4 Updated the keywords
 * 1.1.0 added logging feature
 * 1.2.0 now with 100% more promises 
+* 1.2.1 Fix for referrer being overwritten with ReportingSuiteId
