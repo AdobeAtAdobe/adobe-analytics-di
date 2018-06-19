@@ -55,7 +55,7 @@ var _parameters = {
     prop:{postParam:"prop",description:'Analytics property name.',multiform:true,getParam:"c",max:75},
     purchaseID:{postParam:"purchaseID",description:'Purchase ID number.',getParam:"purchaseID",multiform:false},
     referrer:{postParam:"referrer",description:'The URL of the page referrer.',getParam:"r",multiform:false},
-    reportSuiteID:{postParam:"referrer",description:'Specifies the report suites where you want to submit data. Separate multiple report suite IDs with a comma.',getParam:"",multiform:false},
+    reportSuiteID:{postParam:"reportSuiteID",description:'Specifies the report suites where you want to submit data. Separate multiple report suite IDs with a comma.',getParam:"",multiform:false},
     resolution:{postParam:"resolution",description:'Monitor resolution For example, 1280x1024.',getParam:"s",multiform:false},
     server:{postParam:"server",description:'The Web server serving the page.',getParam:"server",multiform:false},
     state:{postParam:"state",description:'The visitors U.S. state.',getParam:"state",multiform:false},
