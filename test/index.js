@@ -13,7 +13,8 @@ it('should create a DI xml object to post', function () {
         channel: 'My Channel name',
         eVar10: 'test evar10 value',
         prop10: 'test prop10 value',
-        events: "event10,event11"
+        events: "event10,event11",
+        referrer: adobeAnalyticsHelper.getReportingSuiteId()
     };
 
     var testResult = '<visitorID>myvisitorId</visitorID><pageName>My Home Page</pageName><channel>My Channel name</channel><eVar10>test evar10 value</eVar10><prop10>test prop10 value</prop10><events>event10,event11</events><referrer>MY-REPORTING-SUITE-ID</referrer><reportSuiteID>MY-REPORTING-SUITE-ID</reportSuiteID>';
