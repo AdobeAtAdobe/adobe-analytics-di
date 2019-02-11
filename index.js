@@ -18,6 +18,7 @@ var _persistEvars = true;
 var _sProps = [];
 var _persistSProps = false;
 var _reportingSuiteId=null;
+var _trackingServerUrl=null;
 var _persistReportingSuiteId=true;
 var _pageName=null;
 var _persistPageName=true;
@@ -119,7 +120,7 @@ function _sendCallToAdobeAnalytics(di, logger){
     var body = _xmlPre + di.getPostXmlRequestBody() + _xmlPost;
     //console.info(body);
     var call_options = {
-        host: self.getReportingSuiteId()+".112.2o7.net",
+        host: self.getTrackingServerUrl() || self.getReportingSuiteId()+".112.2o7.net",
         port: 80,
         path: '/b/ss//6',
         method: 'POST',
@@ -331,6 +332,26 @@ var AdobeAnalyticsHelper = {
      */
     getReportingSuiteId:function(){
         return _reportingSuiteId;
+    },
+    /**
+     * @doc setTrackingServerUrl
+     * @name AdobeAnalyticsHelper:setTrackingServerUrl
+     *
+     * @description sets the tracking server url
+     *
+     */
+    setTrackingServerUrl: function (trackingServerUrl) {
+        _trackingServerUrl = trackingServerUrl
+    },
+    /**
+     * @doc getTrackingServerUrl
+     * @name AdobeAnalyticsHelper:getTrackingServerUrl
+     *
+     * @description gets the tracking server url
+     *
+     */
+    getTrackingServerUrl:function(){
+        return _trackingServerUrl;
     },
     /**
      * @doc getDataInsertion

@@ -6,6 +6,11 @@ it('should set reporting suite ID', function () {
     adobeAnalyticsHelper.getReportingSuiteId().should.equal("MY-REPORTING-SUITE-ID")
 });
 
+it('should set reporting suite ID', function () {
+    adobeAnalyticsHelper.setTrackingServerUrl("custom.tracking.com");
+    adobeAnalyticsHelper.getTrackingServerUrl().should.equal("custom.tracking.com")
+});
+
 it('should create a DI xml object to post (using visitorID)', function () {
     var callData = {
         visitorID: 'myvisitorId',
