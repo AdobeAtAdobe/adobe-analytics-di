@@ -250,15 +250,15 @@ function DataInsertion(data){
     }
 
     //visitor id or ipAddress is required
-    if(typeof data.IPaddress == 'undefined'){
+    if(typeof data.ipaddress == 'undefined'){
         if((typeof _defaultIpAddress != 'undefined') && (_defaultIpAddress != null)){
-            data['IPaddress'] = _defaultIpAddress;
+            data['ipaddress'] = _defaultIpAddress;
         }
     }
 
     //check either ip or visitor is defined
-    if((typeof data.visitorID == 'undefined') && (typeof data.IPaddress == 'undefined')){
-        throw new Error('visitorID OR IPaddress must be defined');
+    if((typeof data.visitorID == 'undefined') && (typeof data.ipaddress == 'undefined')){
+        throw new Error('visitorID OR ipaddress must be defined');
     }
 
     //Page name or page url is required
