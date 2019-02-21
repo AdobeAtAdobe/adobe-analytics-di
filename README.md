@@ -52,3 +52,4 @@ if (myDi != null) {
 * 1.1.0 added logging feature
 * 1.2.0 now with 100% more promises 
 * 1.2.1 Fix for referrer being overwritten with ReportingSuiteId
+* 1.3.0 Added fixes from Radu and updated testing from Make to use Mocha
