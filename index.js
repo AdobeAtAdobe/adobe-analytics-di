@@ -18,6 +18,7 @@ var _persistEvars = true;
 var _sProps = [];
 var _persistSProps = false;
 var _reportingSuiteId=null;
+var _trackingServerUrl=null;
 var _persistReportingSuiteId=true;
 var _pageName=null;
 var _persistPageName=true;
@@ -120,7 +121,7 @@ function _sendCallToAdobeAnalytics(di, logger){
     var body = _xmlPre + di.getPostXmlRequestBody() + _xmlPost;
     //console.info(body);
     var call_options = {
-        host: self.getReportingSuiteId()+".112.2o7.net",
+        host: self.getTrackingServerUrl() || self.getReportingSuiteId()+".112.2o7.net",
         port: 80,
         path: '/b/ss//6',
         method: 'POST',
@@ -251,15 +252,15 @@ function DataInsertion(data){
     }
 
     //visitor id or ipAddress is required
-    if(typeof data.IPaddress == 'undefined'){
+    if(typeof data.ipaddress == 'undefined'){
         if((typeof _defaultIpAddress != 'undefined') && (_defaultIpAddress != null)){
-            data['IPaddress'] = _defaultIpAddress;
+            data['ipaddress'] = _defaultIpAddress;
         }
     }
 
     //check either ip or visitor is defined
-    if((typeof data.visitorID == 'undefined') && (typeof data.IPaddress == 'undefined')){
-        throw new Error('visitorID OR IPaddress must be defined');
+    if((typeof data.visitorID == 'undefined') && (typeof data.ipaddress == 'undefined')){
+        throw new Error('visitorID OR ipaddress must be defined');
     }
 
     //Page name or page url is required
@@ -332,6 +333,26 @@ var AdobeAnalyticsHelper = {
      */
     getReportingSuiteId:function(){
         return _reportingSuiteId;
+    },
+    /**
+     * @doc setTrackingServerUrl
+     * @name AdobeAnalyticsHelper:setTrackingServerUrl
+     *
+     * @description sets the tracking server url
+     *
+     */
+    setTrackingServerUrl: function (trackingServerUrl) {
+        _trackingServerUrl = trackingServerUrl
+    },
+    /**
+     * @doc getTrackingServerUrl
+     * @name AdobeAnalyticsHelper:getTrackingServerUrl
+     *
+     * @description gets the tracking server url
+     *
+     */
+    getTrackingServerUrl:function(){
+        return _trackingServerUrl;
     },
     /**
      * @doc getDataInsertion
