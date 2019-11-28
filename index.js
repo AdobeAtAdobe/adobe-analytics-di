@@ -40,6 +40,7 @@ var _parameters = {
     hier:{postParam:"hier",description:'A hierarchy string.',multiform:true,max:5,getParam:"h"},
     homePage:{postParam:"homePage",description:'Whether the current page is the visitors homepage (Y or N).',multiform:false,getParam:"hp"},
     ipaddress:{postParam:"ipaddress",description:'The visitors IP address.',multiform:false,getParam:""},
+    imsregion:{postParam:"imsregion",description:'The Location Hint from Visitor ID Service.',multiform:false,getParam:""},
     javaEnabled:{postParam:"javaEnabled",description:'Whether the visitor has Java enabled (Y or N).',multiform:false,getParam:"v"},
     javaScriptVersion:{postParam:"javaScriptVersion",description:'JavaScript version. For example, 1.3.',multiform:false,getParam:"j"},
     language:{postParam:"language",description:'The browsers supported language. For example, "en-us".',multiform:false,getParam:""},
