@@ -54,3 +54,4 @@ if (myDi != null) {
 * 1.2.1 Fix for referrer being overwritten with ReportingSuiteId
 * 1.3.0 Added fixes from Radu and updated testing from Make to use Mocha
 * 1.3.1 Updated to support the latest Insertion API spec.  Zoran added the required 'imsregion' property.
+* 1.3.2 Added getters and setters.  Thanks to DhrBaksteen for the contribution 
