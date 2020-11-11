@@ -23,8 +23,8 @@
   },
   "homepage": "https://github.com/AdobeAtAdobe/adobe-analytics-di",
   "devDependencies": {
-    "chai": "^4.0.0",
-    "mocha": "^8.0.0"
+    "chai": "^4.2.0",
+    "mocha": "^8.2.1"
   },
   "dependencies": {
     "underscore": "^1.11.0"
