@@ -417,6 +417,78 @@ var AdobeAnalyticsHelper = {
      */
     getDiParameters:function(){
         return _parameters;
+    },
+    /**
+     * @doc setPersistEvars
+     * @name AdobeAnalyticsHelper:setPersistEvars
+     * 
+     * @description sets whether the eVars are preserved between DataInsertions.
+     */
+    setPersistEvars:function(persistEvars){
+        _persistEvars = persistEvars;
+    },
+    /**
+     * @doc getPersistEvars
+     * @name AdobeAnalyticsHelper:getPersistEvars
+     * 
+     * @description gets whether the eVars are preserved between DataInsertions.
+     */
+    getPersistEvars:function(){
+        return _persistEvars;
+    },
+    /**
+     * @doc setPersistSProps
+     * @name AdobeAnalyticsHelper:setPersistSProps
+     * 
+     * @description sets whether the sProps are preserved between DataInsertions.
+     */
+    setPersistSProps:function(persistSProps){
+        _persistSProps = persistSProps;
+    },
+    /**
+     * @doc getPersistSProps
+     * @name AdobeAnalyticsHelper:getPersistSProps
+     * 
+     * @description gets whether the sProps are preserved between DataInsertions.
+     */
+    getPersistSProps:function(){
+        return _persistSProps;
+    },
+    /**
+     * @doc setPersistReportingSuiteId
+     * @name AdobeAnalyticsHelper:setPersistReportingSuiteId
+     * 
+     * @description sets whether the reportingSuiteId is preserved between DataInsertions.
+     */
+    setPersistReportingSuiteId:function(persistReportingSuiteId){
+        _persistReportingSuiteId = persistReportingSuiteId;
+    },
+    /**
+     * @doc getPersistReportingSuiteId
+     * @name AdobeAnalyticsHelper:getPersistReportingSuiteId
+     * 
+     * @description gets whether the reportingSuiteId is preserved between DataInsertions.
+     */
+    getPersistReportingSuiteId:function(){
+        return _persistReportingSuiteId;
+    },
+    /**
+     * @doc setPersistPageName
+     * @name AdobeAnalyticsHelper:setPersistPageName
+     * 
+     * @description sets whether the pageName is preserved between DataInsertions.
+     */
+    setPersistPageName:function(persistPageName){
+        _persistPageName = persistPageName;
+    },
+    /**
+     * @doc getPersistPageName
+     * @name AdobeAnalyticsHelper:getPersistPageName
+     * 
+     * @description gets whether the pageName is preserved between DataInsertions.
+     */
+    getPersistPageName:function(){
+        return _persistPageName;
     }
 };
 
