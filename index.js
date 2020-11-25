@@ -122,7 +122,7 @@ function _sendCallToAdobeAnalytics(di, logger){
     var body = _xmlPre + di.getPostXmlRequestBody() + _xmlPost;
     //console.info(body);
     var call_options = {
-        host: self.getTrackingServerUrl() || self.getReportingSuiteId()+".112.2o7.net",
+        host: self.getTrackingServerUrl() || self.getReportingSuiteId()+".sc.omtrdc.net",
         port: self.getPort() || 80,
         path: '/b/ss//6',
         method: 'POST',
