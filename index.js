@@ -19,6 +19,7 @@ var _sProps = [];
 var _persistSProps = false;
 var _reportingSuiteId=null;
 var _trackingServerUrl=null;
+var _port=null;
 var _persistReportingSuiteId=true;
 var _pageName=null;
 var _persistPageName=true;
@@ -122,7 +123,7 @@ function _sendCallToAdobeAnalytics(di, logger){
     //console.info(body);
     var call_options = {
         host: self.getTrackingServerUrl() || self.getReportingSuiteId()+".112.2o7.net",
-        port: 80,
+        port: self.getPort() || 80,
         path: '/b/ss//6',
         method: 'POST',
         agent: _adobeAnalyticsHttpAgent,
@@ -345,6 +346,16 @@ var AdobeAnalyticsHelper = {
         _trackingServerUrl = trackingServerUrl
     },
     /**
+     * @doc setPort
+     * @name AdobeAnalyticsHelper:setPort
+     *
+     * @description sets the port
+     *
+     */
+    setPort: function (port) {
+        _port = port
+    },
+    /**
      * @doc getTrackingServerUrl
      * @name AdobeAnalyticsHelper:getTrackingServerUrl
      *
@@ -354,6 +365,17 @@ var AdobeAnalyticsHelper = {
     getTrackingServerUrl:function(){
         return _trackingServerUrl;
     },
+    /**
+     * @doc getPort
+     * @name AdobeAnalyticsHelper:getPort
+     *
+     * @description gets the port
+     *
+     */
+    getPort:function(){
+        return _port;
+    },
+
     /**
      * @doc getDataInsertion
      * @name AdobeAnalyticsHelper:getDataInsertion
@@ -421,7 +443,7 @@ var AdobeAnalyticsHelper = {
     /**
      * @doc setPersistEvars
      * @name AdobeAnalyticsHelper:setPersistEvars
-     * 
+     *
      * @description sets whether the eVars are preserved between DataInsertions.
      */
     setPersistEvars:function(persistEvars){
@@ -430,7 +452,7 @@ var AdobeAnalyticsHelper = {
     /**
      * @doc getPersistEvars
      * @name AdobeAnalyticsHelper:getPersistEvars
-     * 
+     *
      * @description gets whether the eVars are preserved between DataInsertions.
      */
     getPersistEvars:function(){
@@ -439,7 +461,7 @@ var AdobeAnalyticsHelper = {
     /**
      * @doc setPersistSProps
      * @name AdobeAnalyticsHelper:setPersistSProps
-     * 
+     *
      * @description sets whether the sProps are preserved between DataInsertions.
      */
     setPersistSProps:function(persistSProps){
@@ -448,7 +470,7 @@ var AdobeAnalyticsHelper = {
     /**
      * @doc getPersistSProps
      * @name AdobeAnalyticsHelper:getPersistSProps
-     * 
+     *
      * @description gets whether the sProps are preserved between DataInsertions.
      */
     getPersistSProps:function(){
@@ -457,7 +479,7 @@ var AdobeAnalyticsHelper = {
     /**
      * @doc setPersistReportingSuiteId
      * @name AdobeAnalyticsHelper:setPersistReportingSuiteId
-     * 
+     *
      * @description sets whether the reportingSuiteId is preserved between DataInsertions.
      */
     setPersistReportingSuiteId:function(persistReportingSuiteId){
@@ -466,7 +488,7 @@ var AdobeAnalyticsHelper = {
     /**
      * @doc getPersistReportingSuiteId
      * @name AdobeAnalyticsHelper:getPersistReportingSuiteId
-     * 
+     *
      * @description gets whether the reportingSuiteId is preserved between DataInsertions.
      */
     getPersistReportingSuiteId:function(){
@@ -475,7 +497,7 @@ var AdobeAnalyticsHelper = {
     /**
      * @doc setPersistPageName
      * @name AdobeAnalyticsHelper:setPersistPageName
-     * 
+     *
      * @description sets whether the pageName is preserved between DataInsertions.
      */
     setPersistPageName:function(persistPageName){
@@ -484,7 +506,7 @@ var AdobeAnalyticsHelper = {
     /**
      * @doc getPersistPageName
      * @name AdobeAnalyticsHelper:getPersistPageName
-     * 
+     *
      * @description gets whether the pageName is preserved between DataInsertions.
      */
     getPersistPageName:function(){

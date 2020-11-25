@@ -11,6 +11,12 @@ it('should set reporting suite ID', function () {
     adobeAnalyticsHelper.getTrackingServerUrl().should.equal("custom.tracking.com")
 });
 
+it('should set port', function () {
+    adobeAnalyticsHelper.setPort("443");
+    adobeAnalyticsHelper.getPort().should.equal("443")
+});
+
+
 it('should create a DI xml object to post (using visitorID)', function () {
     var callData = {
         visitorID: 'myvisitorId',
