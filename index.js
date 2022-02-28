@@ -260,14 +260,26 @@ function DataInsertion(data){
     }
 
     //check either ip or visitor is defined
-    if((typeof data.visitorID == 'undefined') && (typeof data.ipaddress == 'undefined')){
-        throw new Error('visitorID OR ipaddress must be defined');
+    if((typeof data.visitorID == 'undefined') && (typeof data.ipaddress == 'undefined') && (typeof data.marketingCloudVisitorID == 'undefined')){
+        throw new Error('visitorID OR ipaddress or marketingCloudVisitorID must be defined');
+    }
+
+    /***
+     * GitIssue: Incorrect validation of mandatory visitorId #20
+     */
+    if((typeof data.marketingCloudVisitorID != 'undefined') && (typeof data.visitorID != 'undefined')){
+        delete data['visitorID'];
     }
 
     //Page name or page url is required
+    /*
+    git issue #19 pageName shouldn't always be mandatory
+
     if((typeof data.pageName == 'undefined') && (typeof data.pageURL == 'undefined')){
         throw new Error('pageName OR pageURL must be defined');
     }
+    */
+
     /*** End Checking Requirements ***/
 
     this.getPostXmlRequestBody=function(){
