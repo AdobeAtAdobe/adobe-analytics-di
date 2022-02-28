@@ -56,4 +56,4 @@ if (myDi != null) {
 * 1.3.1 Updated to support the latest Insertion API spec.  Zoran added the required 'imsregion' property.
 * 1.3.2 Added getters and setters.  Thanks to DhrBaksteen for the contribution 
 * 1.3.4 Added setter for setting DI service port.  Thanks to kevpmoore for the contribution.  Also I have updated the default tracking server as suggested in https://github.com/AdobeAtAdobe/adobe-analytics-di/issues/
-* 1.3.5 Updated dependencies, #20 Incorrect validation of mandatory visitorId, #19 pageName shouldn't always be mandatory, #18 Broken Docs Link in Readme
+* 1.3.6 Updated dependencies, #20 Incorrect validation of mandatory visitorId, #19 pageName shouldn't always be mandatory, #18 Broken Docs Link in Readme
